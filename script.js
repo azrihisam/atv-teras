@@ -6,6 +6,8 @@ const lightbox = document.getElementById('lightbox');
 const lightboxImg = document.getElementById('lightbox-img');
 const lightboxClose = document.getElementById('lightbox-close');
 const particlesEl = document.getElementById('particles');
+const successModal = document.getElementById('success-modal');
+const closeSuccessBtn = document.getElementById('close-success-modal');
 
 // ===== Navbar Scroll Effect =====
 let lastScroll = 0;
@@ -103,18 +105,31 @@ function createParticles() {
     particlesEl.appendChild(particle);
   }
 }
-createParticles();
+if (particlesEl) {
+  createParticles();
+}
 
-// ===== Gallery Lightbox =====
+// ===== Lightbox Logic =====
+function openLightbox(img) {
+  if (img) {
+    lightboxImg.src = img.src.replace(/w=\d+/, 'w=1200').replace(/h=\d+/, 'h=800');
+    lightboxImg.alt = img.alt;
+    lightbox.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+}
+
+// Gallery Items
 document.querySelectorAll('.gallery-item').forEach(item => {
   item.addEventListener('click', () => {
-    const img = item.querySelector('img');
-    if (img) {
-      lightboxImg.src = img.src.replace(/w=\d+/, 'w=1200').replace(/h=\d+/, 'h=800');
-      lightboxImg.alt = img.alt;
-      lightbox.classList.add('active');
-      document.body.style.overflow = 'hidden';
-    }
+    openLightbox(item.querySelector('img'));
+  });
+});
+
+// Package Images
+document.querySelectorAll('.package-img').forEach(img => {
+  img.addEventListener('click', () => {
+    openLightbox(img);
   });
 });
 
@@ -152,14 +167,6 @@ window.addEventListener('scroll', () => {
   });
 });
 
-// ===== Parallax on Hero =====
-window.addEventListener('scroll', () => {
-  const hero = document.querySelector('.hero');
-  if (hero) {
-    const scrollY = window.scrollY;
-    hero.style.backgroundPositionY = scrollY * 0.4 + 'px';
-  }
-});
 
 // ===== Booking Form =====
 const bookingForm = document.getElementById('booking-form');
@@ -194,18 +201,32 @@ if (bookingForm) {
       `👥 Pax: ${pax}\n\n` +
       `Please confirm my reservation. Thank you!`;
 
-    const waUrl = `https://wa.me/60111670163?text=${encodeURIComponent(message)}`;
+    const waUrl = `https://wa.me/60136910209?text=${encodeURIComponent(message)}`;
 
     setTimeout(() => {
       window.open(waUrl, '_blank');
+
+      // Show success modal
+      if (successModal) {
+        successModal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+      }
     }, 800);
 
-    // Reset form after delay
+    // Close modal event
+    if (closeSuccessBtn) {
+      closeSuccessBtn.onclick = () => {
+        successModal.classList.remove('active');
+        document.body.style.overflow = '';
+        bookingForm.reset();
+        submitBtn.innerHTML = originalBtnText;
+        submitBtn.disabled = false;
+      };
+    }
+
+    // Reset form after delay (backup)
     setTimeout(() => {
-      bookingForm.reset();
       formSuccess.classList.remove('show');
-      submitBtn.innerHTML = originalBtnText; // Restore original button content
-      submitBtn.disabled = false;
     }, 5000);
   });
 }
